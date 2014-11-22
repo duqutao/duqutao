@@ -1,0 +1,93 @@
+function clock(){ 
+	
+	var drawing = document.getElementById("drawing");
+	
+	if(!drawing.getContext){ 
+		return false;
+	}
+
+	var context = drawing.getContext("2d");
+	var PI = Math.PI;
+
+	context.clearRect(0,0,300,300);
+
+	context.strokeStyle = "rgba(0,0,0,0)"; 				//建立透明矩形区
+	context.strokeRect(0,0,300,300);
+
+	context.strokeStyle = "red";
+
+	context.shadowOffsetX = 5;							//阴影效果
+	context.shadowOffsetX = 5;
+	context.shadowBlur = 4;
+	context.shadowColor = "rgba(0,0,0,0.5)";
+
+	context.beginPath();							
+	context.arc(100,100,99,0,2*PI,false);		
+	context.moveTo(194,100);
+	context.arc(100,100,94,0,2*PI,false);	
+
+	//生成钟表图形（不含指针）
+	for(var i=1,j=0,x,y,n=PI/30;i<=60;i++){ 
+			context.font = "bold 9px Arial";
+			context.textAlign = "center";
+			context.textBaseline = "middle"; 
+
+			x=100+80*Math.sin(n)
+			y=100-80*Math.cos(n)
+			if(i % 5 == 0){ 							//建立数字和小点
+				j++;
+				context.fillText(j,x,y);
+			}else{
+			if(n < PI/2 + PI/80){ 
+				context.moveTo(x,y);
+				context.lineTo(x+1,y-2);
+			}else if(n > PI/2 && n < PI + PI/80){ 
+				context.moveTo(x,y);
+				context.lineTo(x+1,y+2);
+			}else if(n > PI && n < PI*1.5 + PI/80){ 
+				context.moveTo(x,y);
+				context.lineTo(x-1,y+2);
+			}else{ 
+				context.moveTo(x,y);
+				context.lineTo(x-1,y-2);
+			}
+		}
+		n += (PI/30) - PI/77777;						//PI/77777用作修正
+	}
+
+	//生成指针
+	var rad = PI / 30;
+	var time = new Date();
+	var hour = time.getHours();
+	var hour = hour > 12? hour - 12 : hour; 
+	var hourRad = hour * rad * 5;
+	var second = time.getSeconds();
+	var secondRad = second * rad;
+	var minute = time.getMinutes(); 
+	var minuteRad = minute * rad;
+
+	//时针
+	context.translate(100,100);
+	context.rotate(hourRad);
+	context.moveTo(0,0);
+	context.lineTo(0,-40);
+	
+	//分针
+	context.rotate(-hourRad);
+	context.rotate(minuteRad);
+	context.moveTo(0,0);
+	context.lineTo(0,-55);
+
+	//秒针
+	context.rotate(-minuteRad);
+	context.rotate(secondRad);
+	context.moveTo(0,0);
+	context.lineTo(0,-65);
+
+	context.stroke();
+	context.rotate(-secondRad);
+	context.translate(-100,-100);
+}
+
+clock();
+setInterval(clock,1000);
